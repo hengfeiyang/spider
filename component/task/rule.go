@@ -31,7 +31,7 @@ type Rule struct {
 	fieldFilterFuncs []url.FieldFilterFunc // 字段，过滤函数，全局过滤器在字段本身过滤器之后执行
 	beforeRuleFunc   BeforeRuleFunc        // 规则，前置钩子函数，在匹配到URL后，处理前
 	afterRuleRunc    AfterRuleFunc         // 规则，后置钩子函数，在处理完绑定的方法后
-	SaveFunc         SaveFunc              // 存储函数
+	saveFunc         SaveFunc              // 存储，存储函数
 	beforeSaveFunc   BeforeSaveFunc        // 存储，前置钩子函数
 	afterSaveFunc    AfterSaveFunc         // 存储，后置钩子函数
 }
@@ -139,7 +139,7 @@ func (r *Rule) SetFieldFilterFunc(ff ...url.FieldFilterFunc) *Rule {
 
 // SetSaveFunc 设置存储的钩子函数
 func (r *Rule) SetSaveFunc(s SaveFunc, b BeforeSaveFunc, a AfterSaveFunc) *Rule {
-	r.SaveFunc = s
+	r.saveFunc = s
 	r.beforeSaveFunc = b
 	r.afterSaveFunc = a
 	return r
@@ -213,8 +213,8 @@ func (r *Rule) SaveRow(u *url.URI, val map[string]interface{}) error {
 	}
 
 	// 保存数据
-	if r.SaveFunc != nil {
-		if err := r.SaveFunc(r.task.ID(), pk, val); err != nil {
+	if r.saveFunc != nil {
+		if err := r.saveFunc(r.task.ID(), pk, val); err != nil {
 			return err
 		}
 	} else {
@@ -240,6 +240,12 @@ func (r *Rule) fetch(u *url.URI, fetcherPool *FetcherPool) error {
 	if r.task.setting.beforeFetchFunc != nil {
 		r.task.setting.beforeFetchFunc(u)
 	}
+	// 执行重复检测
+	if r.task.setting.checkRepeatFunc != nil {
+		if r.task.setting.checkRepeatFunc(u) {
+			return nil // 已经采集过了
+		}
+	}
 	// 执行获取
 	_, err := r.task.FetchURI(u, fetcherPool)
 	// 反采集检测，无论如何都要执行，因为可能抓取错误就是反采集造成的
@@ -252,7 +258,7 @@ func (r *Rule) fetch(u *url.URI, fetcherPool *FetcherPool) error {
 		return err
 	}
 	// 记录URL
-	updated, err := r.task.logURL(u.URL, util.MD5Bytes(u.Body))
+	updated := r.task.logURL(u.URL, util.MD5Bytes(u.Body))
 	if r.forceUpdate == false && updated == false {
 		return nil // 无需处理，采集过了
 	}

@@ -2,8 +2,6 @@
 package task
 
 import (
-	"path"
-	"runtime"
 	"sync"
 	"time"
 
@@ -49,6 +47,7 @@ type taskSetting struct {
 	retryTimes      int             // 出错，重试次数
 	prepareFunc     PrepareFunc     // 任务，预处理钩子函数
 	antiSpiderFunc  AntiSpiderFunc  // 抓取，反作弊函数
+	checkRepeatFunc CheckRepeatFunc // 抓取，重复检测钩子函数
 	beforeFetchFunc BeforeFetchFunc // 抓取，前置钩子函数
 	afterFetchFunc  AfterFetchFunc  // 抓取，后置钩子函数
 }
@@ -235,7 +234,8 @@ func (t *Task) SetPrepareFunc(p PrepareFunc) *Task {
 }
 
 // SetFetchFunc 设置抓取的钩子函数
-func (t *Task) SetFetchFunc(b BeforeFetchFunc, a AfterFetchFunc) *Task {
+func (t *Task) SetFetchFunc(c CheckRepeatFunc, b BeforeFetchFunc, a AfterFetchFunc) *Task {
+	t.setting.checkRepeatFunc = c
 	t.setting.beforeFetchFunc = b
 	t.setting.afterFetchFunc = a
 	return t
@@ -372,13 +372,10 @@ func (t *Task) Run() error {
 	}
 
 	// 开启种子协程
-	// 当加载存储的数据时，设为继续执行未完成的任务，不重新初始化 入口
-	if !lastIn {
-		for _, u := range t.url.GetInitURLs() {
-			go func(u string) {
-				t.PushURL(u)
-			}(u)
-		}
+	for _, u := range t.url.GetInitURLs() {
+		go func(u string) {
+			t.PushURL(u)
+		}(u)
 	}
 
 	// 开启主进程
@@ -460,7 +457,6 @@ func (t *Task) setRunning(v bool) {
 
 // save 保存任务状态，保存未执行完的URL为临时队列
 func (t *Task) save() error {
-	var err error
 	queue := make([]string, 0, t.url.Len())
 	for {
 		time.Sleep(time.Millisecond)

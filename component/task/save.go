@@ -22,4 +22,5 @@ func defaultSaveFunc(taskID, pk string, val map[string]interface{}) error {
 	fmt.Printf("DataPK: %s\n", pk)
 	fmt.Printf("Data Value:\n%v\n", val)
 	fmt.Println("")
+	return nil
 }

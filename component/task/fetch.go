@@ -7,6 +7,9 @@ import (
 	"github.com/safeie/spider/component/url"
 )
 
+// CheckRepeatFunc 检测重复方法
+type CheckRepeatFunc func(uri *url.URI) bool
+
 // BeforeFetchFunc 获取前置方法
 type BeforeFetchFunc func(uri *url.URI)
 
