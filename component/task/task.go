@@ -50,6 +50,7 @@ type taskSetting struct {
 	checkRepeatFunc CheckRepeatFunc // 抓取，重复检测钩子函数
 	beforeFetchFunc BeforeFetchFunc // 抓取，前置钩子函数
 	afterFetchFunc  AfterFetchFunc  // 抓取，后置钩子函数
+	beforeQuitFunc  BeforeQuitFunc  // 停止，前置钩子函数
 }
 
 // PrepareFunc 任务预处理函数
@@ -238,6 +239,12 @@ func (t *Task) SetFetchFunc(c CheckRepeatFunc, b BeforeFetchFunc, a AfterFetchFu
 	t.setting.checkRepeatFunc = c
 	t.setting.beforeFetchFunc = b
 	t.setting.afterFetchFunc = a
+	return t
+}
+
+// SetBeforeQuitFunc 设置停止前置钩子函数
+func (t *Task) SetBeforeQuitFunc(f BeforeQuitFunc) *Task {
+	t.setting.beforeQuitFunc = f
 	return t
 }
 
@@ -475,6 +482,11 @@ func (t *Task) save() error {
 	if len(queue) == 0 {
 		return nil
 	}
+
+	if t.setting.beforeQuitFunc != nil {
+		t.setting.beforeQuitFunc(t.id, queue)
+	}
+
 	return nil
 }
 
