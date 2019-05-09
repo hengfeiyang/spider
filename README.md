@@ -57,11 +57,13 @@ provider url filter, fixpath, fetch content, parse content and more functions
 
 ## task flow
 
+```
 task->init->PrepareFunc->URLinitFunc->url
   url->rule->BeforeFetchFunc->CheckRepeatFunc->fetch->AfterFetchFunc->AntiSpiderFunc->beforeRuleFunc->parse->afterRuleFunc
     fetchURL->
     fetchField->field.fieldFilterFuncs->rule.fieldFilterFuncs->save
     save->beforeSaveFunc->saveFunc->afterSaveFunc
+```
 
 ### callback
 
