@@ -53,7 +53,7 @@ func crawl() {
 
 // crawlPage 分析一个列表页，返回列表中每个页面的标题和文档下载地址
 func crawlPage(uri string) ([]*docItem, error) {
-	remote := url.NewRemote(log.DefaultLogger.(log.SimpleLogger), 0, uri)
+	remote := url.NewRemote(log.DefaultLogger.(log.SimpleLogger), url.PageTypeHTML, uri)
 	pageRet, err := remote.FetchURI("")
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func crawlPage(uri string) ([]*docItem, error) {
 		time.Sleep(time.Millisecond * 10)
 		fmt.Println(docURL)
 
-		docRemote := url.NewRemote(log.DefaultLogger.(log.SimpleLogger), 0, docURL)
+		docRemote := url.NewRemote(log.DefaultLogger.(log.SimpleLogger), url.PageTypeHTML, docURL)
 		docRet, err := docRemote.FetchURI("")
 		if err != nil {
 			return nil, err
