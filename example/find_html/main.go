@@ -28,6 +28,8 @@ func main() {
 	t.SetURLinitFunc(func() []string {
 		return []string{"https://blog.golang.org/index"}
 	})
+	// collect urls
+	t.Rule("https://blog.golang.org/index").URLs()
 
 	// prepare page fields
 	// use html document selector query

@@ -378,10 +378,9 @@ func (t *Task) Run() error {
 	}
 
 	// 开启种子协程
-	// 不经过规则校验直接加入队列
 	for _, u := range t.url.GetInitURLs() {
 		go func(u string) {
-			t.url.PushURL(u)
+			t.PushURL(u)
 		}(u)
 	}
 
