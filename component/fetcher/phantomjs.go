@@ -59,7 +59,7 @@ func (t *Webkit) PhantomJS(method string, url string, params map[string]string) 
 
 	switch method {
 	case "GET":
-		args = append(args, t.option.rootDir+phantomJSFiles[0],
+		args = append(args, t.option.configDir+phantomJSFiles[0],
 			url,
 			t.option.charset,
 			GetUserAgent(t.option),
@@ -68,7 +68,7 @@ func (t *Webkit) PhantomJS(method string, url string, params map[string]string) 
 			strconv.Itoa(t.option.timeout),
 		)
 	case "POST":
-		args = append(args, t.option.rootDir+phantomJSFiles[1],
+		args = append(args, t.option.configDir+phantomJSFiles[1],
 			url,
 			t.option.charset,
 			GetUserAgent(t.option),
@@ -84,7 +84,7 @@ func (t *Webkit) PhantomJS(method string, url string, params map[string]string) 
 	var res *PhantomJSResponse
 	// 由于JS的不稳定性，增加重试次数
 	for i := 0; i < 3; i++ {
-		out, err = util.Command(t.option.rootDir+phantomJSBin, args, os.TempDir())
+		out, err = util.Command(t.option.configDir+phantomJSBin, args, os.TempDir())
 		if err != nil {
 			time.Sleep(300 * time.Millisecond)
 			continue

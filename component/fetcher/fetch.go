@@ -29,7 +29,7 @@ type Fetcher interface {
 
 // Option 抓取器的配置参数
 type Option struct {
-	rootDir       string            // 目录，执行目录，phantomjs和脚本将从目录中获取
+	configDir     string            // 目录，执行目录，phantomjs和脚本将从目录中获取
 	method        string            // HTTP请求方法
 	headers       map[string]string // Header头设置
 	params        map[string]string // HTTP请求附加字段
@@ -45,14 +45,14 @@ type Option struct {
 }
 
 // NewOption 创新新的抓取配置
-func NewOption(rootDir string) *Option {
-	if rootDir == "" {
+func NewOption(configDir string) *Option {
+	if configDir == "" {
 		_, filename, _, _ := runtime.Caller(1)
-		rootDir = path.Join(path.Dir(filename), "../")
+		configDir = path.Join(path.Dir(filename), "../")
 	}
 
 	t := new(Option)
-	t.rootDir = rootDir
+	t.configDir = configDir
 	t.method = "GET"
 	t.params = make(map[string]string)
 	t.headers = make(map[string]string)

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/safeie/spider/common/log"
-	"github.com/safeie/spider/common/util"
 	"github.com/safeie/spider/component/fetcher"
 	"github.com/safeie/spider/component/url"
 )
@@ -22,8 +21,7 @@ type Task struct {
 	id          string        // 任务编号
 	name        string        // 任务名称
 	domain      string        // 该任务匹配的域名
-	runnerID    string        // 当前执行者编号
-	rootDir     string        // 运行主目录，用于判断获取配置文件等
+	configDir   string        // 配置目录，用于获取配置脚本
 	logger      log.Logger    // 日志器
 	url         *url.URL      // URL管理器
 	fetcherPool *FetcherPool  // 抓取器
@@ -56,13 +54,13 @@ type taskSetting struct {
 // PrepareFunc 任务预处理函数
 type PrepareFunc func(*Task)
 
-// New 创建新的任务，参数为：任务编号，名称，域名
-func New(taskID, taskName, domain string) *Task {
+// New 创建新的任务，参数为：任务编号，名称，域名，脚本目录
+func New(taskID, taskName, domain, configDir string) *Task {
 	t := new(Task)
 	t.id = taskID
 	t.name = taskName
 	t.domain = domain
-	t.rootDir = util.GetDir()
+	t.configDir = configDir
 	t.logger = log.DefaultLogger
 	t.url = url.NewURL()
 	t.rule = make([]*Rule, 0, 2)
@@ -76,7 +74,7 @@ func New(taskID, taskName, domain string) *Task {
 	t.setting.retryTimes = 3
 
 	// 抓取设置
-	t.setting.fetchOption = fetcher.NewOption("")
+	t.setting.fetchOption = fetcher.NewOption(t.configDir)
 
 	// 初始化存储
 	t.urlStore = new(sync.Map)
@@ -214,20 +212,6 @@ func (t *Task) SetTimeout(v int) *Task {
 	return t
 }
 
-// Rule 设置一个执行规则并返回
-// 同一个URL应该仅能匹配到一个规则，执行时，仅处理匹配到的第一个规则
-func (t *Task) Rule(s string) *Rule {
-	for i := range t.rule {
-		if t.rule[i].rule == s {
-			return t.rule[i]
-		}
-	}
-
-	r := newRule(s, t)
-	t.rule = append(t.rule, r)
-	return r
-}
-
 // SetPrepareFunc 设置开始执行前的预处理函数
 func (t *Task) SetPrepareFunc(p PrepareFunc) *Task {
 	t.setting.prepareFunc = p
@@ -258,6 +242,20 @@ func (t *Task) SetAntiSpiderFunc(f AntiSpiderFunc) *Task {
 func (t *Task) SetURLinitFunc(f url.URLinitFunc) *Task {
 	t.url.SetInitFunc(f)
 	return t
+}
+
+// Rule 设置一个执行规则并返回
+// 同一个URL应该仅能匹配到一个规则，执行时，仅处理匹配到的第一个规则
+func (t *Task) Rule(s string) *Rule {
+	for i := range t.rule {
+		if t.rule[i].rule == s {
+			return t.rule[i]
+		}
+	}
+
+	r := newRule(s, t)
+	t.rule = append(t.rule, r)
+	return r
 }
 
 // FetchURL 获取单个网页，给外部人调用
@@ -379,9 +377,10 @@ func (t *Task) Run() error {
 	}
 
 	// 开启种子协程
+	// 不经过规则校验直接加入队列
 	for _, u := range t.url.GetInitURLs() {
 		go func(u string) {
-			t.PushURL(u)
+			t.url.PushURL(u)
 		}(u)
 	}
 
