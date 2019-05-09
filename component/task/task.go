@@ -55,6 +55,8 @@ type taskSetting struct {
 type PrepareFunc func(*Task)
 
 // New 创建新的任务，参数为：任务编号，名称，域名，脚本目录
+//
+// configDir 可为空，默认值是代码目录中的 config 目录
 func New(taskID, taskName, domain, configDir string) *Task {
 	t := new(Task)
 	t.id = taskID
@@ -258,11 +260,10 @@ func (t *Task) Rule(s string) *Rule {
 	return r
 }
 
-// FetchURL 获取单个网页，给外部人调用
-// 还有个姿势，顺便读取/设置一下COOKIE
-func (t *Task) FetchURL(uri string) (*url.URI, string, error) {
-	u := url.NewURI(uri)
-	cookie, err := t.FetchURI(u, t.fetcherPool)
+// FetchURL 获取单个网页，给外部调用
+func (t *Task) FetchURL(uri string) (u *url.URI, cookie string, err error) {
+	u = url.NewURI(uri)
+	cookie, err = t.FetchURI(u, t.fetcherPool)
 	return u, cookie, err
 }
 
@@ -489,6 +490,7 @@ func (t *Task) save() error {
 	return nil
 }
 
+// logURL 记录url用于重复判断
 func (t *Task) logURL(url, hash string) bool {
 	v, ok := t.urlStore.Load(url)
 	if ok {

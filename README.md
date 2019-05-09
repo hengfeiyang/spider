@@ -57,27 +57,28 @@ provider url filter, fixpath, fetch content, parse content and more functions
 
 ## task flow
 
-回调函数总结：
-    task级别
-      1. task.PrepareFunc         一次性       传递 TASK，用于初始化, 设置Cookie啥的
-      2. task.URLinitFunc         一次性       接收 初始化URLs, 可以批量设置入口URL
-      3. task.AntiSpiderFunc      每个链接      传递 URI, 判断一个url是否被反采集拦截
-      4. task.BeforeFetchFunc     每个链接      传递 URI, 在获取内容前可以干点啥
-      5. task.CheckRepeatFunc     每个链接      传递 URI, 在获取内容前检测是否重复，可用于检测是否是采集过的内容
-      6. task.AfterFetchFunc      每个链接      传递 URI, 在获取内容后可以干点啥
-    rule级别：
-      1. rule.beforeRuleFunc      每个链接      传递 Rule, URI, 获取内容后，执行绑定的规则方法前（如：分析字段前），用于干预内容字段分析，替换内容啥的
-      2. rule.afterRuleRunc       每个链接      传递 Rule, URI, 分析字段后，执行完绑定的规则方法
-      3. rule.beforeSaveFunc      每个链接      传递 Rule, URI, dataMap, 可以再这个阶段格式化内容然后再返回
-      4. rule.saveFunc            每个链接      传递 Rule.ID, pk, dataMap, 返回获取到的数据字段
-      5. rule.afterSaveFunc       每个链接      传递 Rule, URI, 可以在这个阶段执行通知，记录，日志等
-      6. rule.fieldFilterFuncs    每个字段      传递 Field, 后置, 规则级别的全局过滤
-    字段级别：
-      1. field.fieldFilterFuncs   每个字段      传递 Field, 优先, 字段级别的过滤，优先于全局过滤器执行
+task->init->PrepareFunc->URLinitFunc->url
+  url->rule->BeforeFetchFunc->CheckRepeatFunc->fetch->AfterFetchFunc->AntiSpiderFunc->beforeRuleFunc->parse->afterRuleFunc
+    fetchURL->
+    fetchField->field.fieldFilterFuncs->rule.fieldFilterFuncs->save
+    save->beforeSaveFunc->saveFunc->afterSaveFunc
 
-  流程图：
-    task->init->PrepareFunc->URLinitFunc->url
-        url->rule->BeforeFetchFunc-fetch->AfterFetchFunc->AntiSpiderFunc->beforeRuleFunc->fetchXXX->afterRuleRunc
-            fetchURL->
-            fetchField->field.fieldFilterFuncs->rule.fieldFilterFuncs->save
-            save->beforeSaveFunc->saveFunc->afterSaveFunc
+### callback
+
+* task level:
+  1. task.PrepareFunc         once         pass Task, can do something initialize, eg: setCookie
+  2. task.URLinitFunc         once         pass None, receive initialize urls, it should multiple
+  3. task.AntiSpiderFunc      per uri      pass Uri,  check crawl behaviour is trigger the anti spider rule
+  4. task.BeforeFetchFunc     per uri      pass Uri,  you can do something before fetch url content
+  5. task.CheckRepeatFunc     per uri      pass Uri,  you can check is repeated, if return true will skip the url
+  6. task.AfterFetchFunc      per uri      pass Uri,  you can do something after fetch url content
+  7. task.BeforeQuitFunc      once         pass taskid and url queue, you can storage saved queue before quit, it can be used for next init urls
+* rule level:
+  1. rule.beforeRuleFunc      per uri      pass Rule, URI, after fetch and before excute rule functions, you can change the page content or something else
+  2. rule.afterRuleRunc       per uri      pass Rule, URI, after execute rule parse functions
+  3. rule.beforeSaveFunc      per uri      pass Rule, URI, dataMap, before save data, you have a change to filter the data
+  4. rule.saveFunc            per uri      pass Rule.ID, pk, dataMap, returns the data to you, you should save it
+  5. rule.afterSaveFunc       per uri      pass Rule, URI, after save, you can log or dispath the success message
+  6. rule.fieldFilterFuncs    per field    pass Field, a rule level global field filter, execute on each field
+* filed level:
+  1. field.fieldFilterFuncs   per filed    pass Field, filter the filed value, this execute before the rule level filter 
