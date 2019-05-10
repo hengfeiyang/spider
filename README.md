@@ -62,8 +62,7 @@ provider url filter, fixpath, fetch content, parse content and more functions
 * rule: 
   * fetchURL
   * fetchField->[field.remote]->field.fieldFilterFuncs->->rule.fieldFilterFuncs
-	* save->beforeSaveFunc->saveFunc->afterSaveFunc
-```
+  * save->beforeSaveFunc->saveFunc->afterSaveFunc
 
 ### callback
 
