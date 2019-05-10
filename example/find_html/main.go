@@ -42,7 +42,7 @@ func main() {
 		SetFixURL(true)
 
 	var num uint32
-	// use regexp match url
+	// use regexp match url rule
 	t.Rule("https://blog.golang.org/*").
 		SetName("blog paper"). // set rule name
 		URLs().                // collect matched url

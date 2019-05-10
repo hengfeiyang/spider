@@ -489,7 +489,7 @@ func (t *Task) save() error {
 	return nil
 }
 
-// logURL 记录url用于重复判断
+// logURL 记录url用于重复判断 如果已存在返回 true
 func (t *Task) logURL(url, hash string) bool {
 	v, ok := t.urlStore.Load(url)
 	if ok {

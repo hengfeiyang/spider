@@ -258,8 +258,8 @@ func (r *Rule) fetch(u *url.URI, fetcherPool *FetcherPool) error {
 		return err
 	}
 	// 记录URL
-	updated := r.task.logURL(u.URL, util.MD5Bytes(u.Body))
-	if r.forceUpdate == false && updated == false {
+	exists := r.task.logURL(u.URL, util.MD5Bytes(u.Body))
+	if r.forceUpdate == false && exists == true {
 		return nil // 无需处理，采集过了
 	}
 	// 执行后置方法，只在抓取成功后，并且有更新时，执行

@@ -48,7 +48,7 @@ type Option struct {
 func NewOption(configDir string) *Option {
 	if configDir == "" {
 		_, filename, _, _ := runtime.Caller(1)
-		configDir = path.Join(path.Dir(filename), "../")
+		configDir = path.Join(path.Dir(filename), "../../", "config")
 	}
 
 	t := new(Option)

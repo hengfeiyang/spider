@@ -57,12 +57,12 @@ provider url filter, fixpath, fetch content, parse content and more functions
 
 ## task flow
 
-```
-task->init->PrepareFunc->URLinitFunc->url
-  url->rule->BeforeFetchFunc->CheckRepeatFunc->fetch->AfterFetchFunc->AntiSpiderFunc->beforeRuleFunc->parse->afterRuleFunc
-    fetchURL->
-    fetchField->field.fieldFilterFuncs->rule.fieldFilterFuncs->save
-    save->beforeSaveFunc->saveFunc->afterSaveFunc
+* task: init->PrepareFunc->URLinitFunc->{url}->BeforeQuitFunc
+* url:  rule->beforeRuleFunc->BeforeFetchFunc->CheckRepeatFunc->fetch->AntiSpiderFunc->AfterFetchFunc->{rule}->afterRuleFunc
+* rule: 
+  * fetchURL
+  * fetchField->[field.remote]->field.fieldFilterFuncs->->rule.fieldFilterFuncs
+	* save->beforeSaveFunc->saveFunc->afterSaveFunc
 ```
 
 ### callback
@@ -70,9 +70,9 @@ task->init->PrepareFunc->URLinitFunc->url
 * task level:
   1. task.PrepareFunc         once         pass Task, can do something initialize, eg: setCookie
   2. task.URLinitFunc         once         pass None, receive initialize urls, it should multiple
-  3. task.AntiSpiderFunc      per uri      pass Uri,  check crawl behaviour is trigger the anti spider rule
-  4. task.BeforeFetchFunc     per uri      pass Uri,  you can do something before fetch url content
-  5. task.CheckRepeatFunc     per uri      pass Uri,  you can check is repeated, if return true will skip the url
+  3. task.BeforeFetchFunc     per uri      pass Uri,  you can do something before fetch url content
+  4. task.CheckRepeatFunc     per uri      pass Uri,  you can check is repeated, if return true will skip the url
+  5. task.AntiSpiderFunc      per uri      pass Uri,  check crawl behaviour is trigger the anti spider rule
   6. task.AfterFetchFunc      per uri      pass Uri,  you can do something after fetch url content
   7. task.BeforeQuitFunc      once         pass taskid and url queue, you can storage saved queue before quit, it can be used for next init urls
 * rule level:

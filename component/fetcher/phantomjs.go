@@ -24,9 +24,9 @@ var phantomJSBin string
 var phantomJSFiles [2]string
 
 func init() {
-	phantomJSBin = "/config/bin/" + runtime.GOOS + "/phantomjs" // BIN
-	phantomJSFiles[0] = "/config/js/phantomjs_get.js"           // GET
-	phantomJSFiles[1] = "/config/js/phantomjs_post.js"          // POST
+	phantomJSBin = "/bin/" + runtime.GOOS + "/phantomjs" // BIN
+	phantomJSFiles[0] = "/js/phantomjs_get.js"           // GET
+	phantomJSFiles[1] = "/js/phantomjs_post.js"          // POST
 }
 
 // PhantomJS 执行phatomjs请求渲染
