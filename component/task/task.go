@@ -105,18 +105,18 @@ func (t *Task) Domain() string {
 	return t.domain
 }
 
-// Log 输出日志调试
-func (t *Task) Log(v ...interface{}) {
+// Print 输出日志调试
+func (t *Task) Print(v ...interface{}) {
 	t.logger.Print(v...)
 }
 
-// Logf 输出日志调试
-func (t *Task) Logf(format string, v ...interface{}) {
+// Printf 输出日志调试
+func (t *Task) Printf(format string, v ...interface{}) {
 	t.logger.Printf(format, v...)
 }
 
-// Logln 输出日志调试
-func (t *Task) Logln(v ...interface{}) {
+// Println 输出日志调试
+func (t *Task) Println(v ...interface{}) {
 	t.logger.Println(v...)
 }
 
@@ -283,9 +283,9 @@ func (t *Task) FetchURI(u *url.URI, fetcherPool *FetcherPool) (string, error) {
 	}
 	fetcherPool.Put(f)
 	if err != nil {
-		t.Logf("页面抓取失败 %s: %v", u.URL, err)
+		t.Printf("页面抓取失败 %s: %v", u.URL, err)
 	} else {
-		t.Logf("页面抓取成功 %s", u.URL)
+		t.Printf("页面抓取成功 %s", u.URL)
 	}
 
 	if err != nil {
@@ -344,7 +344,7 @@ func (t *Task) runRule(uri *url.URI, fetcherPool *FetcherPool) {
 		for _, r := range rules {
 			if err = r.Run(uri, fetcherPool); err != nil {
 				if !t.setting.errorContinue {
-					t.Logf("任务遇到错误即将终止: %v", err)
+					t.Printf("任务遇到错误即将终止: %v", err)
 					go func() {
 						t.Stop()
 					}()

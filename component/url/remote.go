@@ -41,10 +41,10 @@ func (t *Remote) FetchURI(v string) (*URI, error) {
 	u.PageType = t.pageType
 	res, err := fetch.Fetch(u.URL)
 	if err != nil {
-		t.logger.Logf("字段远程页面抓取失败 %s: %v", u.URL, err)
+		t.logger.Printf("字段远程页面抓取失败 %s: %v", u.URL, err)
 		return nil, fmt.Errorf("Field.Remote.Fetch error: %v", err)
 	}
-	t.logger.Logf("字段远程页面抓取成功 %s", u.URL)
+	t.logger.Printf("字段远程页面抓取成功 %s", u.URL)
 
 	u.Code = res.Code
 	u.Body = res.Body

@@ -250,7 +250,7 @@ func (r *Rule) fetch(u *url.URI, fetcherPool *FetcherPool) error {
 	_, err := r.task.FetchURI(u, fetcherPool)
 	// 反采集检测，无论如何都要执行，因为可能抓取错误就是反采集造成的
 	if r.task.setting.antiSpiderFunc != nil && r.task.setting.antiSpiderFunc(u) {
-		r.task.Logf("触发反采集策略 %s", u.URL)
+		r.task.Printf("触发反采集策略 %s", u.URL)
 		return Errorf("触发反采集策略")
 	}
 	// 如果不是反采集错误，判断其他错误
@@ -276,7 +276,7 @@ func (r *Rule) parseRow(u *url.URI) {
 		f := r.row[i].Copy()
 		if err = f.Fetch(u); err != nil {
 			err = Errorf("字段[%s:%s]分析失败：%v", f.Name, f.Alias, err)
-			r.task.Log(err)
+			r.task.Print(err)
 		}
 		// 执行全局字段过滤器，PS. 字段本身的过滤器已经优先执行
 		if err == nil {
