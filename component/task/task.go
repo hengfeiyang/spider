@@ -22,7 +22,7 @@ type Task struct {
 	name        string        // 任务名称
 	domain      string        // 该任务匹配的域名
 	configDir   string        // 配置目录，用于获取配置脚本
-	logger      log.Logger    // 日志器
+	logger      log.StdLogger // 日志器
 	url         *url.URL      // URL管理器
 	fetcherPool *FetcherPool  // 抓取器
 	rule        []*Rule       // 采集规则
@@ -103,6 +103,11 @@ func (t *Task) Name() string {
 // Domain 返回任务的域名
 func (t *Task) Domain() string {
 	return t.domain
+}
+
+// SetLogger 设置任务的Logger
+func (t *Task) SetLogger(v log.StdLogger) {
+	t.logger = v
 }
 
 // Print 输出日志调试
