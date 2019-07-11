@@ -54,7 +54,7 @@ func (t *JSON) Path(path string) *JSON {
 			if len(key) == 0 || lastChar == ']' {
 				continue
 			}
-			j = t.Get(string(key))
+			j = j.Get(string(key))
 			key = make([]rune, 0)
 			lastChar = k
 			continue
@@ -83,8 +83,8 @@ func (t *JSON) Get(path string) *JSON {
 	if j, ok := t.data.(map[string]interface{}); ok {
 		s, err := json.Marshal(j[path])
 		if err == nil {
-			j, _ := New(s)
-			return j
+			js, _ := New(s)
+			return js
 		}
 	}
 	return nil

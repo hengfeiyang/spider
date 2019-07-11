@@ -24,7 +24,7 @@ const (
 // Fetcher fetch interface
 type Fetcher interface {
 	// Fetch 执行请求，返回 body,header, cookie, error
-	Fetch(url string) (*Response, error)
+	Fetch(url string, params, headers map[string]string) (*Response, error)
 }
 
 // Option 抓取器的配置参数
@@ -70,14 +70,31 @@ func (t *Option) SetMethod(v string) {
 	t.method = v
 }
 
+// GetMethod 获取HTTP请求方法
+func (t *Option) GetMethod() string {
+	if t.method != "" {
+		return t.method
+	}
+	return "GET"
+}
+
 // SetHeader 设置HTTP请求头信息
 func (t *Option) SetHeader(key, val string) {
 	t.headers[key] = val
 }
 
-// SetParam 设置HTTP请求附件参数
+// SetParam 设置HTTP请求附加参数
 func (t *Option) SetParam(key, val string) {
 	t.params[key] = val
+}
+
+// GetParams 获取HTTP请求附加参数
+func (t *Option) GetParams() map[string]string {
+	ret := make(map[string]string)
+	for k, v := range t.params {
+		ret[k] = v
+	}
+	return ret
 }
 
 // GetCookie 获取cookie信息，因为带锁，所以要通过两个方法获取

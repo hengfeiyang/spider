@@ -171,16 +171,26 @@ func (t *Task) SetMethod(v string) *Task {
 	return t
 }
 
+// GetMethod 获取HTTP请求方法
+func (t *Task) GetMethod() string {
+	return t.setting.fetchOption.GetMethod()
+}
+
 // SetHeader 设置HTTP请求头信息
 func (t *Task) SetHeader(key, val string) *Task {
 	t.setting.fetchOption.SetHeader(key, val)
 	return t
 }
 
-// SetParam 设置HTTP请求附件参数
+// SetParam 设置HTTP请求附加参数
 func (t *Task) SetParam(key, val string) *Task {
 	t.setting.fetchOption.SetParam(key, val)
 	return t
+}
+
+// GetParams 获取HTTP请求附加参数
+func (t *Task) GetParams() map[string]string {
+	return t.setting.fetchOption.GetParams()
 }
 
 // SetCookie 设置Cookie
@@ -278,7 +288,7 @@ func (t *Task) FetchURI(u *url.URI, fetcherPool *FetcherPool) (string, error) {
 	var res *fetcher.Response
 	f := fetcherPool.Get()
 	for i := 0; i < t.setting.retryTimes; i++ {
-		res, err = f.Fetch(u.URL)
+		res, err = f.Fetch(u.URL, u.Req.Params, u.Req.Header)
 		if res != nil && (res.Code == 404 || res.Code == 403) {
 			break
 		}

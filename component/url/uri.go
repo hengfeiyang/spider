@@ -28,7 +28,11 @@ type URI struct {
 	Fetched   bool                   // 是否抓取过
 	fields    []*Field               // 字段
 	attach    map[string]interface{} // 附加数据
-	Parser    struct {               // 解析器
+	Req       struct {               // 请求参数
+		Header map[string]string
+		Params map[string]string
+	}
+	Parser struct { // 解析器
 		JSON      *parser.JSONPath
 		Regexp    *parser.Regexp
 		Substring *parser.Substring
@@ -42,6 +46,8 @@ func NewURI(uri string) *URI {
 	u.URL = uri
 	u.parsedURL, _ = url.Parse(uri)
 	u.attach = make(map[string]interface{})
+	u.Req.Header = make(map[string]string)
+	u.Req.Params = make(map[string]string)
 	return u
 }
 
@@ -55,6 +61,8 @@ func (u *URI) Copy() *URI {
 	n.Header = u.Header
 	n.Fetched = u.Fetched
 	n.attach = u.attach
+	n.Req.Header = u.Req.Header
+	n.Req.Params = u.Req.Params
 	return n
 }
 
@@ -81,6 +89,16 @@ func (u *URI) Get(key string) interface{} {
 // Gets 返回附加的属性列表
 func (u *URI) Gets() map[string]interface{} {
 	return u.attach
+}
+
+// SetHeader 设置URL请求时附属的Header头
+func (u *URI) SetHeader(key, val string) {
+	u.Req.Header[key] = val
+}
+
+// SetParam 设置URL请求时附属的请求参数
+func (u *URI) SetParam(key, val string) {
+	u.Req.Params[key] = val
 }
 
 // FetchURLs 获取内容中的URL列表

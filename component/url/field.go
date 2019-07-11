@@ -148,13 +148,22 @@ func (f *Field) Replace(old, new string) {
 		log.Errorln("Field.Replace Compile Error:", err)
 		return
 	}
-	f.value = re.ReplaceAllString(value, new)
+	f.SetValue(re.ReplaceAllString(value, new))
 }
 
 // Remove 删除字段中值出现的字符串，支持 正则表达式
 // 支持，伪正则，* 号 = .*
 func (f *Field) Remove(rule string) {
 	f.Replace(rule, "")
+}
+
+// RemoveString 删除字段中值出现的字符串
+func (f *Field) RemoveString(str string) {
+	v := f.String()
+	if len(v) == 0 {
+		return
+	}
+	f.SetValue(strings.ReplaceAll(v, str, ""))
 }
 
 // RemoveHTMLTags 过滤字段值中出现的HTML标签
@@ -166,6 +175,24 @@ func (f *Field) RemoveHTMLTags(tags ...string) {
 	v = util.StripTags(v, tags...)
 	// 注意，要以string设置回去，因为 其他过滤器都依赖string类型
 	f.SetValue(string(v))
+}
+
+// Trim 过滤字段值中两端的字符
+func (f *Field) Trim(cutset string) {
+	v := f.String()
+	if len(v) == 0 {
+		return
+	}
+	f.SetValue(strings.Trim(v, cutset))
+}
+
+// TrimSpace 过滤字段值中的空白
+func (f *Field) TrimSpace() {
+	v := f.String()
+	if len(v) == 0 {
+		return
+	}
+	f.SetValue(strings.TrimSpace(v))
 }
 
 // SetValue 设置字段值

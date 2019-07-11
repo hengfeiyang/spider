@@ -13,7 +13,7 @@ type Webkit struct {
 }
 
 // Fetch 执行请求
-func (t *Webkit) Fetch(url string) (*Response, error) {
+func (t *Webkit) Fetch(url string, params, headers map[string]string) (*Response, error) {
 	if url == "" {
 		return nil, errors.New("Webkit.Fetch url is empty")
 	}
@@ -21,7 +21,15 @@ func (t *Webkit) Fetch(url string) (*Response, error) {
 		return nil, errors.New("Webkit.Fetch url is not begin with http:// or https://")
 	}
 
-	jsRes, err := t.PhantomJS(t.option.method, url, t.option.params)
+	var ps = make(map[string]string)
+	for k, v := range t.option.params {
+		ps[k] = v
+	}
+	for k, v := range params {
+		ps[k] = v
+	}
+
+	jsRes, err := t.PhantomJS(t.option.method, url, ps)
 	if err != nil {
 		return nil, err
 	}

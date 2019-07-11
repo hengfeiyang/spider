@@ -7,6 +7,13 @@ import (
 	"github.com/safeie/spider/component/url"
 )
 
+const (
+	// MethodGET GET方法获取
+	MethodGET = "GET"
+	// MethodPOST POST方法获取
+	MethodPOST = "POST"
+)
+
 // CheckRepeatFunc 检测重复方法
 type CheckRepeatFunc func(uri *url.URI) bool
 

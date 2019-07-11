@@ -32,14 +32,26 @@ func NewRemote(logger log.SimpleLogger, pageType int, url string) *Remote {
 
 // FetchURI 获取字段的远程页面
 func (t *Remote) FetchURI(v string) (*URI, error) {
+	v = strings.Trim(v, "\"")
 	fetch := fetcher.New(t.engine, t.fetchOption)
-	url := strings.Replace(t.url, "{{.}}", url.QueryEscape(v), 1)
-	if url == "" {
+	uri := strings.Replace(t.url, "{{.}}", url.QueryEscape(v), 1)
+	if uri == "" {
 		return nil, fmt.Errorf("Field.Remote.Fetch remote url is empty")
 	}
-	u := NewURI(url)
+	u := NewURI(uri)
 	u.PageType = t.pageType
-	res, err := fetch.Fetch(u.URL)
+
+	// 处理值占位符
+	if params := t.GetParams(); params != nil {
+		for pk, pv := range params {
+			if pv == "{{.}}" {
+				u.SetParam(pk, url.QueryEscape(v))
+			} else {
+				u.SetParam(pk, pv)
+			}
+		}
+	}
+	res, err := fetch.Fetch(u.URL, u.Req.Params, u.Req.Header)
 	if err != nil {
 		t.logger.Printf("字段远程页面抓取失败 %s: %v", u.URL, err)
 		return nil, fmt.Errorf("Field.Remote.Fetch error: %v", err)
@@ -70,16 +82,26 @@ func (t *Remote) SetMethod(v string) *Remote {
 	return t
 }
 
+// GetMethod 获取HTTP请求方法
+func (t *Remote) GetMethod() string {
+	return t.fetchOption.GetMethod()
+}
+
 // SetHeader 设置HTTP请求头信息
 func (t *Remote) SetHeader(key, val string) *Remote {
 	t.fetchOption.SetHeader(key, val)
 	return t
 }
 
-// SetParam 设置HTTP请求附件参数
+// SetParam 设置HTTP请求附加参数
 func (t *Remote) SetParam(key, val string) *Remote {
 	t.fetchOption.SetParam(key, val)
 	return t
+}
+
+// GetParams 获取HTTP请求附加参数
+func (t *Remote) GetParams() map[string]string {
+	return t.fetchOption.GetParams()
 }
 
 // SetCookie 设置Cookie

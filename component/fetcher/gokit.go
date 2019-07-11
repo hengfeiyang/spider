@@ -19,7 +19,7 @@ type Gokit struct {
 }
 
 // Fetch 执行请求
-func (t *Gokit) Fetch(url string) (*Response, error) {
+func (t *Gokit) Fetch(url string, params, headers map[string]string) (*Response, error) {
 	if url == "" {
 		return nil, errors.New("Gokit.Fetch url is empty")
 	}
@@ -31,16 +31,23 @@ func (t *Gokit) Fetch(url string) (*Response, error) {
 	var req *http.Request
 	var reqBody io.Reader
 	var err error
-	if len(t.option.params) > 0 {
+	var ps = make(map[string]string)
+	for k, v := range t.option.params {
+		ps[k] = v
+	}
+	for k, v := range params {
+		ps[k] = v
+	}
+	if len(ps) > 0 {
 		if t.option.method == "GET" {
-			var vals map[string]interface{}
-			for k, v := range t.option.params {
+			var vals = make(map[string]interface{})
+			for k, v := range ps {
 				vals[k] = v
 			}
 			url += util.HTTPBuildQuery(vals, util.QUERY_RFC3986)
 		} else {
-			var vals *neturl.Values
-			for key, val := range t.option.params {
+			var vals = make(neturl.Values)
+			for key, val := range ps {
 				vals.Add(key, val)
 			}
 			reqBody = strings.NewReader(vals.Encode())
@@ -49,6 +56,9 @@ func (t *Gokit) Fetch(url string) (*Response, error) {
 	req, err = http.NewRequest(t.option.method, url, reqBody)
 	req.Header.Set("User-Agent", GetUserAgent(t.option))
 	for k, v := range t.option.headers {
+		req.Header.Set(k, v)
+	}
+	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
 	if t.option.method == "POST" {
@@ -89,7 +99,7 @@ func (t *Gokit) Fetch(url string) (*Response, error) {
 		}
 	case http.StatusMovedPermanently, http.StatusFound, http.StatusSeeOther, http.StatusTemporaryRedirect:
 		if location := FixURL(url, resp.Header.Get("location")); location != "" {
-			return t.Fetch(location)
+			return t.Fetch(location, params, headers)
 		}
 		return res, fmt.Errorf("Gokit.Fetch.Do Redirect to [%s] %s error", resp.Status, resp.Header.Get("location"))
 	default:
