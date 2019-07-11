@@ -27,6 +27,7 @@ func (t *Substring) Match(rule string) string {
 	patternArr := strings.Split(rule, "(*)")
 	if len(patternArr) != 2 {
 		log.Debugln("Substring.Match: rule format error, must contains/split (*)")
+		return ""
 	}
 	return t.StrMatch(patternArr[0], patternArr[1])
 }
@@ -36,6 +37,7 @@ func (t *Substring) MatchAll(rule string) []string {
 	patternArr := strings.Split(rule, "(*)")
 	if len(patternArr) != 2 {
 		log.Debugln("Substring.MatchAll: rule format error, must contains/split (*)")
+		return nil
 	}
 	return t.StrMatchAll(patternArr[0], patternArr[1])
 }
