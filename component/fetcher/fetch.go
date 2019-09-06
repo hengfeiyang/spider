@@ -215,8 +215,9 @@ func ConvertCharset(res *Response, charset string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	newBody := cd.ConvString(string(res.Body))
-	return []byte(newBody), nil
+	buf := make([]byte, len(res.Body))
+	newBody, _, err := cd.Conv(res.Body, buf[:])
+	return []byte(newBody), err
 }
 
 // GetCharset return the url charset, when get empty log error, and return UTF-8
