@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"math/rand"
 	"net/http"
 	"net/url"
 	"path"
@@ -38,6 +39,7 @@ type Option struct {
 	charset       string            // 网站页面编码
 	userAgentType int               // UserAgent类型
 	userAgent     string            // 自定义UserAgent
+	userAgentPool []string          // 自定义UserAgent池 用于随机
 	proxyType     int               // 代理类型设置，不使用代理，自定义代理，启用国内代理，启用国外代理
 	proxyAddr     string            // 代理服务器地址
 	renderDelay   int               // 渲染等待，单位 毫秒，用于js渲染时获取内容前的等待，确保渲染完成
@@ -143,6 +145,14 @@ func (t *Option) SetUserAgent(typ int, ua string) {
 	}
 }
 
+// SetUserAgentPool 设置UserAgent池
+func (t *Option) SetUserAgentPool(uas ...string) {
+	t.userAgentType = useragent.Rand
+	if uas != nil && len(uas) > 0 {
+		t.userAgentPool = uas
+	}
+}
+
 // SetRenderDelay 设置JS渲染时间，单位是 秒，默认不等待，如果发现页面JS没有执行完整，可以加大该时间
 func (t *Option) SetRenderDelay(v int) {
 	t.renderDelay = v
@@ -182,6 +192,13 @@ func GetUserAgent(option *Option) string {
 	// 自定义
 	if option.userAgentType == useragent.Custom && option.userAgent != "" {
 		return option.userAgent
+	}
+	// 随机
+	if option.userAgentType == useragent.Rand {
+		if option.userAgentPool != nil && len(option.userAgentPool) > 0 {
+			return option.userAgentPool[rand.Intn(len(option.userAgentPool))]
+		}
+		return ""
 	}
 	// 系统内置
 	return useragent.Get(option.userAgentType)

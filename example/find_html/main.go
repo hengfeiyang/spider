@@ -13,6 +13,8 @@ func main() {
 	t := task.New("1", "golang blog", "https://blog.golang.org", "")
 	// set crawl sleep time
 	t.SetInterval(100)
+	// set rand useragent
+	t.SetUserAgentPool("ua1", "ua2")
 	// set goruntime num
 	t.SetRoutineNum(2)
 	// set continue
