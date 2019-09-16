@@ -217,6 +217,12 @@ func (t *Task) SetUserAgent(typ int, ua string) *Task {
 	return t
 }
 
+// SetUserAgentPool 设置UserAgentPool：类型，随机
+func (t *Task) SetUserAgentPool(uas ...string) *Task {
+	t.setting.fetchOption.SetUserAgentPool(uas...)
+	return t
+}
+
 // SetRenderDelay 设置JS渲染时间，单位是 秒，默认不等待，如果发现页面JS没有执行完整，可以加大该时间
 func (t *Task) SetRenderDelay(v int) *Task {
 	t.setting.fetchOption.SetRenderDelay(v)

@@ -2,6 +2,7 @@ package useragent
 
 const (
 	Custom  = iota // 自定义
+	Rand           // 随机
 	Common         // 普通，通用
 	PC             // 电脑
 	Mobile         // 手机
