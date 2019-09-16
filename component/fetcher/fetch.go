@@ -198,7 +198,6 @@ func GetUserAgent(option *Option) string {
 		if option.userAgentPool != nil && len(option.userAgentPool) > 0 {
 			return option.userAgentPool[rand.Intn(len(option.userAgentPool))]
 		}
-		return ""
 	}
 	// 系统内置
 	return useragent.Get(option.userAgentType)
