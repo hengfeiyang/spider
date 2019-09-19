@@ -26,7 +26,7 @@ type URLinitFunc func() []string
 func NewURL() *URL {
 	t := new(URL)
 	t.initURLs = make([]string, 0)
-	t.ruleURLs = make(chan *URI, 10000)
+	t.ruleURLs = make(chan *URI, 100000)
 	t.crawled = make(map[string]bool)
 	return t
 }
@@ -92,9 +92,6 @@ func (t *URL) Initialize() {
 	}
 	if t.initfunc != nil {
 		if urls := t.initfunc(); urls != nil {
-			if len(urls) > 1000 {
-				urls = urls[:1000]
-			}
 			for i := range urls {
 				t.initURLs = append(t.initURLs, urls[i])
 			}
