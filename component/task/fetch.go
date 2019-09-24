@@ -1,6 +1,7 @@
 package task
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/safeie/spider/component/fetcher"
@@ -25,6 +26,9 @@ type AfterFetchFunc func(uri *url.URI)
 
 // AntiSpiderFunc 判断是否触发了反作弊策略
 type AntiSpiderFunc func(uri *url.URI) bool
+
+// ErrFetchDuplicated 抓取重复
+var ErrFetchDuplicated = errors.New("fetch duplicated")
 
 // FetcherPool 抓取器池
 type FetcherPool struct {

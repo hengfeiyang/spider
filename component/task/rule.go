@@ -243,7 +243,7 @@ func (r *Rule) fetch(u *url.URI, fetcherPool *FetcherPool) error {
 	// 执行重复检测
 	if r.task.setting.checkRepeatFunc != nil {
 		if r.task.setting.checkRepeatFunc(u) {
-			return nil // 已经采集过了
+			return ErrFetchDuplicated // 已经采集过了，返回特定的错误
 		}
 	}
 	// 执行获取
