@@ -4,31 +4,34 @@
 * system.args[1] == url
 * system.args[2] == chraset
 * system.args[3] == userAgent
-* system.args[4] == cookie
-* system.args[5] == delay
-* system.args[6] == timeout
-* system.args[7] == postdata
+* system.args[4] == referer
+* system.args[5] == cookie
+* system.args[6] == delay
+* system.args[7] == timeout
+* system.args[8] == postdata
 */
 "use strict";
 var system = require('system');
 var page = require('webpage').create();
-if (system.args.length != 8) {
-    console.log('Usage: get.js <URL> <charset> <userAgent> <cookie> <delay> <timeout> <postdata>');
+if (system.args.length != 9) {
+    console.log('Usage: get.js <URL> <charset> <userAgent> <referer> <cookie> <delay> <timeout> <postdata>');
     phantom.exit(1);
 }
 
 var url = system.args[1];
 var charset = system.args[2] || 'UTF=8';
 var userAgent = system.args[3] || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36';
-var cookie = system.args[4] || '';
-var delay = system.args[5] || 100; //in secs
-var timeout = system.args[6] || 3; //in second
-var postdata = system.args[7];
+var referer = system.args[4] || '';
+var cookie = system.args[5] || '';
+var delay = system.args[6] || 100; //in secs
+var timeout = system.args[7] || 3; //in second
+var postdata = system.args[8];
 var headers = {};
 var code = 200;
 page.onResourceRequested = function (requestData, networkRequest) {
     // console.log('requested: ' + requestData.url);
     networkRequest.setHeader('Cookie', cookie);
+    networkRequest.setHeader('Referer', referer);
 };
 page.onResourceReceived = function (response) {
     // console.log('received: ' + JSON.stringify(response, undefined, 4));

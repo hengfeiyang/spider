@@ -203,6 +203,16 @@ func GetUserAgent(option *Option) string {
 	return useragent.Get(option.userAgentType)
 }
 
+// GetReferer 获取header中设置的referer
+func GetReferer(option *Option) string {
+	for k, v := range option.headers {
+		if strings.ToLower(k) == "referer" {
+			return v
+		}
+	}
+	return ""
+}
+
 // Response 抓取器的返回结果
 type Response struct {
 	Code   int         // 返回的状态码
