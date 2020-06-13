@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -73,11 +74,19 @@ func (t *Gokit) Fetch(url string, params, headers map[string]string) (*Response,
 	if t.option.timeout > 0 {
 		client.Timeout = time.Second * time.Duration(t.option.timeout)
 	}
+	client.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
 
 	if proxyAddr := GetProxyAddr(t.option); proxyAddr != "" {
 		if proxy, err := neturl.Parse(proxyAddr); err == nil {
 			client.Transport = &http.Transport{
 				Proxy: http.ProxyURL(proxy),
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
 			}
 		}
 	}
